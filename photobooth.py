@@ -2,9 +2,10 @@ import time
 import RPi.GPIO as GPIO
 import picamera
 #import socket
+import os
 
 ###Config
-GPIO.setmode(GPIO.BMC)
+GPIO.setmode(GPIO.BCM)
 light1_pin = 4
 light2_pin = 17
 light3_pin = 18
@@ -14,9 +15,9 @@ button3_pin = 24
 GPIO.setup(light1_pin, GPIO.OUT)
 GPIO.setup(light2_pin, GPIO.OUT)
 GPIO.setup(light3_pin, GPIO.OUT)
-GPIO.setup(button1_pin, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button2_pin, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button3_pin, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button1_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button3_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(light1_pin, False)
 GPIO.output(light2_pin, False)
 GPIO.output(light3_pin, False)
@@ -32,9 +33,9 @@ real_path = os.path.dirname(os.path.realpath(__file__))
 def start_photobooth(): 
 	################################# Begin Step 1 ################################# 
 	print "Get Ready"
-	GPIO.output(led1_pin,True);
-	sleep(prep_delay) 
-	GPIO.output(led1_pin,False)
+	GPIO.output(light1_pin,True);
+	time.sleep(prep_delay) 
+	GPIO.output(light1_pin,False)
 	
 	camera = picamera.PiCamera()
 	pixel_width = 640 #use a smaller size to process faster
@@ -45,22 +46,29 @@ def start_photobooth():
 	#camera.saturation = -100 # comment out this line if you want color images
 	camera.start_preview()
 	
-	sleep(2) #warm up camera
+	time.sleep(2) #warm up camera
 
 	################################# Begin Step 2 #################################
 	print "Taking pics" 
 	now = time.strftime("%Y-%m-%d-%H:%M:%S") #get the current date and time for the start of the filename
 	try: #take the photos
-		for i, filename in enumerate(camera.capture_continuous(config.file_path + now + '-' + '{counter:02d}.jpg')):
-			GPIO.output(led2_pin,True) #turn on the LED
+		for i, filename in enumerate(camera.capture_continuous('pics/' + now + '-' + '{counter:02d}.jpg')):
+			#GPIO.output(led2_pin,True) #turn on the LED
 			print(filename)
-			sleep(0.25) #pause the LED on for just a bit
-			GPIO.output(led2_pin,False) #turn off the LED
-			sleep(capture_delay) # pause in-between shots
+			#time.sleep(0.25) #pause the LED on for just a bit
+			#GPIO.output(led2_pin,False) #turn off the LED
+			time.sleep(capture_delay) # pause in-between shots
 			if i == total_pics-1:
 				break
 	finally:
 		camera.stop_preview()
 		camera.close()
+
+
+###Main Program
+while True:
+        GPIO.wait_for_edge(button1_pin, GPIO.FALLING)
+	time.sleep(0.2) #debounce
+	start_photobooth()
 
 
