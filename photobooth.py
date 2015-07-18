@@ -52,7 +52,7 @@ def start_photobooth():
 	print "Taking pics" 
 	now = time.strftime("%Y-%m-%d-%H:%M:%S") #get the current date and time for the start of the filename
 	try: #take the photos
-		for i, filename in enumerate(camera.capture_continuous('pics/' + now + '-' + '{counter:02d}.jpg')):
+		for i, filename in enumerate(camera.capture_continuous('/home/pi/pics/' + now + '-' + '{counter:02d}.jpg')):
 			#GPIO.output(led2_pin,True) #turn on the LED
 			print(filename)
 			#time.sleep(0.25) #pause the LED on for just a bit
