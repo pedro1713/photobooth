@@ -25,14 +25,13 @@ GPIO.output(light2_pin, False)
 
 ###Variables
 total_pics = 4
-capture_delay = 2
+capture_delay = 1
 prep_delay = 2
 real_path = os.path.dirname(os.path.realpath(__file__))
 
 ###Functions
 # define the shutdown function
 def shutdown(channel):
-	print "Bye Bye Bye"
 	GPIO.output(light1_pin, True)
 	GPIO.output(light2_pin, True)
 	time.sleep(3)
@@ -41,7 +40,6 @@ def shutdown(channel):
 # define the photo taking function for when the big button is pressed
 def start_photobooth():
 	################################# Begin Step 1 #################################
-	print "Get Ready"
 	GPIO.output(light1_pin,False)
 	time.sleep(prep_delay)
 	#GPIO.output(light1_pin,False)
@@ -55,7 +53,7 @@ def start_photobooth():
 	#camera.saturation = -100 # comment out this line if you want color images
 	camera.start_preview()
 
-	time.sleep(2) #warm up camera
+	time.sleep(1.5) #warm up camera
 
 	################################# Begin Step 2 #################################
 	print "Taking pics"
@@ -64,7 +62,7 @@ def start_photobooth():
 		for i, filename in enumerate(camera.capture_continuous('/home/pi/pics/' + now  +  '-' + '{counter:02d}.jpg')):
 			GPIO.output(light2_pin,True) #turn on the LED
 			print(filename)
-			time.sleep(0.25) #pause the LED on for just a bit
+			time.sleep(0.4) #pause the LED on for just a bit
 			GPIO.output(light2_pin,False) #turn off the LED
 			time.sleep(capture_delay) # pause in-between shots
 			if i == total_pics-1:
