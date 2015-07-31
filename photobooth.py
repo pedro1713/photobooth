@@ -24,7 +24,7 @@ GPIO.output(light2_pin, False)
 #GPIO.output(light3_pin, False)
 
 ###Variables
-total_pics = 4
+total_pics = 5
 capture_delay = 1
 prep_delay = 2
 real_path = os.path.dirname(os.path.realpath(__file__))
