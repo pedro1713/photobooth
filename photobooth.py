@@ -2,7 +2,6 @@ import glob
 import time
 import RPi.GPIO as GPIO
 import picamera
-#import socket
 import os
 
 ###Config
@@ -35,7 +34,7 @@ def shutdown(channel):
 	GPIO.output(light1_pin, True)
 	GPIO.output(light2_pin, True)
 	time.sleep(3)
-	os.system("sudo halt")
+	os.system("sudo reboot")
 
 # define the photo taking function for when the big button is pressed
 def start_photobooth():
