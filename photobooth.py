@@ -3,30 +3,32 @@ import time
 import RPi.GPIO as GPIO
 import picamera
 import os
+import smbus
 
 ###Config
 GPIO.setmode(GPIO.BCM)
 light1_pin = 4
 light2_pin = 17
-#light3_pin = 18
 button1_pin = 22
 button2_pin = 23
-#button3_pin = 24
 GPIO.setup(light1_pin, GPIO.OUT)
 GPIO.setup(light2_pin, GPIO.OUT)
-#GPIO.setup(light3_pin, GPIO.OUT)
 GPIO.setup(button1_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-#GPIO.setup(button3_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(light1_pin, False)
 GPIO.output(light2_pin, False)
-#GPIO.output(light3_pin, False)
 
 ###Variables
 total_pics = 5
 capture_delay = 1
 prep_delay = 2
 real_path = os.path.dirname(os.path.realpath(__file__))
+bus = smbus.SMBus(1)
+FLASH_ADDRESS = 0x70
+FLASH_REG0 = 0x00
+FLASH_GAIN = 0x09
+FULL_GAIN = 0x0f
+
 
 ###Functions
 # define the shutdown function
