@@ -20,15 +20,15 @@ GPIO.output(light2_pin, False)
 
 ###Variables
 total_pics = 5
-capture_delay = 1
+capture_delay = 2
 prep_delay = 2
 real_path = os.path.dirname(os.path.realpath(__file__))
 bus = smbus.SMBus(1)
 FLASH_ADDRESS = 0x70
 FLASH_REG0 = 0x00
 FLASH_GAIN = 0x09
-FULL_GAIN = 0x0f
-
+gain = 0x0f
+brightness = 0X32
 
 ###Functions
 # define the shutdown function
@@ -43,35 +43,44 @@ def start_photobooth():
 	################################# Begin Step 1 #################################
 	GPIO.output(light1_pin,False)
 	time.sleep(prep_delay)
-	#GPIO.output(light1_pin,False)
 
 	camera = picamera.PiCamera()
 	pixel_width = 640 #use a smaller size to process faster
 	pixel_height = 480
 	camera.resolution = (pixel_width, pixel_height)
-	camera.vflip = True
+	camera.vflip = False
 	camera.hflip = False
+	camera.brightness = 50
+	camera.ISO = 200
 	#camera.saturation = -100 # comment out this line if you want color images
 	camera.start_preview()
-
-	time.sleep(1.5) #warm up camera
+	time.sleep(3) #warm up camera
 
 	################################# Begin Step 2 #################################
 	print "Taking pics"
 	now = time.strftime("%Y-%m-%d-%H%M%S") #get the current date and time for the start of the filename
 	try: #take the photos
+		bus.write_byte_data(FLASH_ADDRESS, FLASH_REG0, 0x5a)
 		for i, filename in enumerate(camera.capture_continuous('/home/pi/pics/' + now  +  '-' + '{counter:02d}.jpg')):
-			GPIO.output(light2_pin,True) #turn on the LED
+		#	GPIO.output(light2_pin,True) #turn on the LED
+			time.sleep(0.25) #pause the LED on for just a bit
 			print(filename)
-			time.sleep(0.4) #pause the LED on for just a bit
-			GPIO.output(light2_pin,False) #turn off the LED
+			#GPIO.output(light2_pin,False) #turn off the LED
+			time.sleep(0.25) #pause the LED on for just a bit
 			time.sleep(capture_delay) # pause in-between shots
 			if i == total_pics-1:
 				break
+		bus.write_byte_data(FLASH_ADDRESS, FLASH_REG0, 0x00)
 	finally:
 		camera.stop_preview()
 		camera.close()
 
+def set_flash():
+	bus.write_byte_data(FLASH_ADDRESS, FLASH_GAIN, gain)
+	bus.write_byte_data(FLASH_ADDRESS, 0x02, brightness)
+	bus.write_byte_data(FLASH_ADDRESS, 0x04, brightness)
+	bus.write_byte_data(FLASH_ADDRESS, 0x05, brightness)
+	bus.write_byte_data(FLASH_ADDRESS, 0x07, brightness)
 
 ### Main Program
 GPIO.add_event_detect(button2_pin, GPIO.FALLING, callback=shutdown, bouncetime=300)
@@ -80,6 +89,9 @@ GPIO.add_event_detect(button2_pin, GPIO.FALLING, callback=shutdown, bouncetime=3
 files = glob.glob('/home/pi/pics/' + '*')
 for f in files:
 	os.remove(f)
+
+#set-up flash add-on
+set_flash()
 
 while True:
 	GPIO.output(light1_pin, True)
