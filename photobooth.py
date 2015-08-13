@@ -57,10 +57,12 @@ def start_photobooth():
 	now = datetime.datetime.now()
 	if now.hour > sunset.hour or now.hour < sunrise.hour:
 		camera.brightness = 60
-		camera.ISO = 400
+		camera.ISO = 800
+		camera.shutter_speed = camera.exposure_speed
 	else:
 		camera.brightness = 50
 		camera.ISO = 100
+		camera.shutter_speed = camera.exposure_speed
 	
 	camera.start_preview()
 	time.sleep(3) #warm up camera
