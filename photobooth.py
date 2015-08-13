@@ -1,5 +1,6 @@
 import glob
 import time
+import datetime
 import RPi.GPIO as GPIO
 import picamera
 import os
@@ -19,8 +20,8 @@ GPIO.output(light1_pin, False)
 GPIO.output(light2_pin, False)
 
 ###Variables
-total_pics = 5
-capture_delay = 2
+total_pics = 15
+capture_delay = 0.2
 prep_delay = 2
 real_path = os.path.dirname(os.path.realpath(__file__))
 bus = smbus.SMBus(1)
@@ -29,6 +30,8 @@ FLASH_REG0 = 0x00
 FLASH_GAIN = 0x09
 gain = 0x0f
 brightness = 0X32
+sunrise = datetime.time(6, 0, 0)
+sunset = datetime.time(19,0, 0)
 
 ###Functions
 # define the shutdown function
@@ -50,9 +53,15 @@ def start_photobooth():
 	camera.resolution = (pixel_width, pixel_height)
 	camera.vflip = False
 	camera.hflip = False
-	camera.brightness = 50
-	camera.ISO = 200
-	#camera.saturation = -100 # comment out this line if you want color images
+	
+	now = datetime.datetime.now()
+	if now.hour > sunset.hour or now.hour < sunrise.hour:
+		camera.brightness = 60
+		camera.ISO = 400
+	else:
+		camera.brightness = 50
+		camera.ISO = 100
+	
 	camera.start_preview()
 	time.sleep(3) #warm up camera
 
