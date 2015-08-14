@@ -9,15 +9,12 @@ import smbus
 ###Config
 GPIO.setmode(GPIO.BCM)
 light1_pin = 4
-light2_pin = 17
 button1_pin = 22
 button2_pin = 23
 GPIO.setup(light1_pin, GPIO.OUT)
-GPIO.setup(light2_pin, GPIO.OUT)
 GPIO.setup(button1_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(light1_pin, False)
-GPIO.output(light2_pin, False)
 
 ###Variables
 total_pics = 15
@@ -37,7 +34,6 @@ sunset = datetime.time(19,0, 0)
 # define the shutdown function
 def shutdown(channel):
 	GPIO.output(light1_pin, True)
-	GPIO.output(light2_pin, True)
 	time.sleep(3)
 	os.system("sudo reboot")
 
@@ -57,7 +53,7 @@ def start_photobooth():
 	now = datetime.datetime.now()
 	if now.hour > sunset.hour or now.hour < sunrise.hour:
 		camera.brightness = 60
-		camera.ISO = 800
+		camera.ISO = 400
 		camera.shutter_speed = camera.exposure_speed
 	else:
 		camera.brightness = 50
@@ -73,11 +69,7 @@ def start_photobooth():
 	try: #take the photos
 		bus.write_byte_data(FLASH_ADDRESS, FLASH_REG0, 0x5a)
 		for i, filename in enumerate(camera.capture_continuous('/home/pi/pics/' + now  +  '-' + '{counter:02d}.jpg')):
-		#	GPIO.output(light2_pin,True) #turn on the LED
-			time.sleep(0.25) #pause the LED on for just a bit
 			print(filename)
-			#GPIO.output(light2_pin,False) #turn off the LED
-			time.sleep(0.25) #pause the LED on for just a bit
 			time.sleep(capture_delay) # pause in-between shots
 			if i == total_pics-1:
 				break
