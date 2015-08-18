@@ -19,7 +19,7 @@ GPIO.output(light1_pin, False)
 ###Variables
 total_pics = 15
 capture_delay = 0.2
-prep_delay = 2
+prep_delay = 0.2
 real_path = os.path.dirname(os.path.realpath(__file__))
 bus = smbus.SMBus(1)
 FLASH_ADDRESS = 0x70
@@ -61,7 +61,7 @@ def start_photobooth():
 		camera.shutter_speed = camera.exposure_speed
 	
 	camera.start_preview()
-	time.sleep(3) #warm up camera
+	time.sleep(1) #warm up camera
 
 	################################# Begin Step 2 #################################
 	print "Taking pics"
@@ -69,8 +69,10 @@ def start_photobooth():
 	try: #take the photos
 		bus.write_byte_data(FLASH_ADDRESS, FLASH_REG0, 0x5a)
 		for i, filename in enumerate(camera.capture_continuous('/home/pi/pics/' + now  +  '-' + '{counter:02d}.jpg')):
+                        GPIO.output(light1_pin, True)
 			print(filename)
 			time.sleep(capture_delay) # pause in-between shots
+                        GPIO.output(light1_pin, False)
 			if i == total_pics-1:
 				break
 		bus.write_byte_data(FLASH_ADDRESS, FLASH_REG0, 0x00)
