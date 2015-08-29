@@ -17,7 +17,7 @@ GPIO.setup(button2_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.output(light1_pin, False)
 
 ###Variables
-total_pics = 15
+total_pics = 4
 capture_delay = 0.2
 prep_delay = 0.2
 real_path = os.path.dirname(os.path.realpath(__file__))
@@ -52,8 +52,8 @@ def start_photobooth():
 	
 	now = datetime.datetime.now()
 	if now.hour > sunset.hour or now.hour < sunrise.hour:
-		camera.brightness = 60
-		camera.ISO = 400
+		camera.brightness = 50
+		camera.ISO = 100
 		camera.shutter_speed = camera.exposure_speed
 	else:
 		camera.brightness = 50
